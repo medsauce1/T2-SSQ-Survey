@@ -1,0 +1,602 @@
+---
+title: "Clean Raw SRL data"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+
+```{r setup, include=FALSE, error=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+options(stringsAsFactors = FALSE)
+
+
+install.packages("ppcor","lmtest","psych")
+library(knitr) 
+library(ppcor)
+library(dplyr)
+library(lmtest)
+library(psych)
+
+
+?ppcor
+```
+
+```{r RMD ----knit---> HTML}
+require(knitr) # required for knitting from rmd to md
+require(markdown) # required for md to html 
+knit('Clear Raw SRL data.rmd', 'Clear Raw SRL data.md') # creates md file
+markdownToHTML('test.md', 'test.html') # creates html file
+browseURL(paste('file://', file.path(getwd(),'test.html'), sep='')) # open file in browser 
+
+```
+
+
+```{r file.choose}
+#to find path of the uncleaned csv file: 
+#file.choose()
+```
+
+```{r read in data}
+
+U.SRL <- read.csv("/Users/-M-/Library/Mobile Documents/com~apple~CloudDocs/Documents/McMaster University/*THESIS 2 (SRL)/DATA/SRL survey data (Uncleaned).csv")
+
+dim(U.SRL) #263 rows &  228 columns 
+str(U.SRL)
+
+# changes all the #NULL! "" in the data to "NA":
+U.SRL[U.SRL=="#NULL!"] <- NA
+#put NA for blanks:
+U.SRL[U.SRL==""]<- NA 
+
+```
+
+```{r remove participants}
+## Remove participants who didn't sign the consent form:
+
+## Remove rows with more than 50% NA:
+U.SRL1 <- U.SRL[which(rowMeans(!is.na(U.SRL)) > 0.5), ] 
+dim(U.SRL1) # n=263 --> n=236 (excel cleaning method n=234)
+
+```
+
+```{r change column names}
+#failed attempt at more efficient method...idk why this doesnt work: 
+  #colnames(U.SRL[13:18]<-c("hi1","hi2","hi3","hi4","hi5","hi6")
+         
+         
+#change column names:                    
+            ##simpler/faster way to do this? 
+colnames(U.SRL1)[1]<-"ID"
+colnames(U.SRL1)[8]<-"ICF"
+  #SSQ
+colnames(U.SRL1)[9]<-"rere1"
+colnames(U.SRL1)[10]<-"rere2"
+colnames(U.SRL1)[11]<-"rere3"
+colnames(U.SRL1)[12]<-"rere4"
+
+colnames(U.SRL1)[13]<-"hi1"
+colnames(U.SRL1)[14]<-"hi2"
+colnames(U.SRL1)[15]<-"hi3"
+colnames(U.SRL1)[16]<-"hi4"
+colnames(U.SRL1)[17]<-"hi5"
+colnames(U.SRL1)[18]<-"hi6"
+
+colnames(U.SRL1)[19]<-"retr1"
+colnames(U.SRL1)[20]<-"retr2"
+colnames(U.SRL1)[21]<-"retr3"
+
+colnames(U.SRL1)[22]<-"elab1"
+colnames(U.SRL1)[23]<-"elab2"
+colnames(U.SRL1)[24]<-"elab3"
+colnames(U.SRL1)[25]<-"elab4"
+colnames(U.SRL1)[26]<-"elab5"
+colnames(U.SRL1)[27]<-"elab6"
+colnames(U.SRL1)[28]<-"elab7"
+colnames(U.SRL1)[29]<-"elab8"
+colnames(U.SRL1)[30]<-"elab9"
+
+colnames(U.SRL1)[31]<-"spa1"
+colnames(U.SRL1)[32]<-"spa2"
+colnames(U.SRL1)[33]<-"spa3"
+
+colnames(U.SRL1)[34]<-"onli1"
+colnames(U.SRL1)[35]<-"onli2"
+colnames(U.SRL1)[36]<-"onli3"
+colnames(U.SRL1)[37]<-"onli4"
+colnames(U.SRL1)[38]<-"onli5"
+colnames(U.SRL1)[39]<-"onli6"
+
+colnames(U.SRL1)[40]<-"cons1"
+colnames(U.SRL1)[41]<-"cons2"
+
+colnames(U.SRL1)[42]<-"Pgrade"
+colnames(U.SRL1)[43]<-"Hgrade"
+colnames(U.SRL1)[44]<-"degree"
+colnames(U.SRL1)[45]<-"program"
+
+  #BF5
+colnames(U.SRL1)[46]<-"BF1"
+colnames(U.SRL1)[47]<-"BF2"
+colnames(U.SRL1)[48]<-"BF3"
+colnames(U.SRL1)[49]<-"BF4"
+colnames(U.SRL1)[50]<-"BF5"
+colnames(U.SRL1)[51]<-"BF6"
+colnames(U.SRL1)[52]<-"BF7"
+colnames(U.SRL1)[53]<-"BF8"
+colnames(U.SRL1)[54]<-"BF9"
+colnames(U.SRL1)[55]<-"BF10"
+colnames(U.SRL1)[56]<-"BF11"
+colnames(U.SRL1)[57]<-"BF12"
+colnames(U.SRL1)[58]<-"BF13"
+colnames(U.SRL1)[59]<-"BF14"
+colnames(U.SRL1)[60]<-"BF15"
+colnames(U.SRL1)[61]<-"BF16"
+colnames(U.SRL1)[62]<-"BF17"
+colnames(U.SRL1)[63]<-"BF18"
+colnames(U.SRL1)[64]<-"BF19"
+colnames(U.SRL1)[65]<-"BF20"
+colnames(U.SRL1)[66]<-"BF21"
+colnames(U.SRL1)[67]<-"BF22"
+colnames(U.SRL1)[68]<-"BF23"
+colnames(U.SRL1)[69]<-"BF24"
+colnames(U.SRL1)[70]<-"BF25"
+colnames(U.SRL1)[71]<-"BF26"
+colnames(U.SRL1)[72]<-"BF27"
+colnames(U.SRL1)[73]<-"BF28"
+colnames(U.SRL1)[74]<-"BF29"
+colnames(U.SRL1)[75]<-"BF30"
+colnames(U.SRL1)[76]<-"BF31"
+colnames(U.SRL1)[77]<-"BF32"
+colnames(U.SRL1)[78]<-"BF33"
+colnames(U.SRL1)[79]<-"BF34"
+colnames(U.SRL1)[80]<-"BF35"
+colnames(U.SRL1)[81]<-"BF36"
+colnames(U.SRL1)[82]<-"BF37"
+colnames(U.SRL1)[83]<-"BF38"
+colnames(U.SRL1)[84]<-"BF39"
+colnames(U.SRL1)[85]<-"BF40"
+colnames(U.SRL1)[86]<-"BF41"
+colnames(U.SRL1)[87]<-"BF42"
+colnames(U.SRL1)[88]<-"BF43"
+colnames(U.SRL1)[89]<-"BF44"
+  #ACRES
+colnames(U.SRL1)[90]<-"ACRES1"
+colnames(U.SRL1)[91]<-"ACRES2"
+colnames(U.SRL1)[92]<-"ACRES3"
+colnames(U.SRL1)[93]<-"ACRES4"
+colnames(U.SRL1)[94]<-"ACRES5"
+colnames(U.SRL1)[95]<-"ACRES6"
+colnames(U.SRL1)[96]<-"ACRES7"
+colnames(U.SRL1)[97]<-"ACRES8"
+colnames(U.SRL1)[98]<-"ACRES9"
+colnames(U.SRL1)[99]<-"ACRES10"
+colnames(U.SRL1)[100]<-"ACRES11"
+colnames(U.SRL1)[101]<-"ACRES12"
+  #MASSLO
+colnames(U.SRL1)[102]<-"MAASLO1"
+colnames(U.SRL1)[103]<-"MAASLO2"
+colnames(U.SRL1)[104]<-"MAASLO3"
+colnames(U.SRL1)[105]<-"MAASLO4"
+colnames(U.SRL1)[106]<-"MAASLO5"
+colnames(U.SRL1)[107]<-"MAASLO6"
+colnames(U.SRL1)[108]<-"MAASLO7"
+colnames(U.SRL1)[109]<-"MAASLO8"
+colnames(U.SRL1)[110]<-"MAASLO9"
+colnames(U.SRL1)[111]<-"MAASLO10"
+colnames(U.SRL1)[112]<-"MAASLO11"
+colnames(U.SRL1)[113]<-"MAASLO12"
+
+  #MW
+colnames(U.SRL1)[114]<-"DMW1"
+colnames(U.SRL1)[115]<-"DMW2"
+colnames(U.SRL1)[116]<-"DMW3"
+colnames(U.SRL1)[117]<-"DMW4"
+colnames(U.SRL1)[118]<-"SMW1"
+colnames(U.SRL1)[119]<-"SMW2"
+colnames(U.SRL1)[120]<-"SMW3"
+colnames(U.SRL1)[121]<-"SMW4" 
+  #DASS
+colnames(U.SRL1)[122]<-"DASS1"
+colnames(U.SRL1)[123]<-"DASS2"
+colnames(U.SRL1)[124]<-"DASS3"
+colnames(U.SRL1)[125]<-"DASS4"
+colnames(U.SRL1)[126]<-"DASS5"
+colnames(U.SRL1)[127]<-"DASS6"
+colnames(U.SRL1)[128]<-"DASS7"
+colnames(U.SRL1)[129]<-"DASS8"
+colnames(U.SRL1)[130]<-"DASS9"
+colnames(U.SRL1)[131]<-"DASS10"
+colnames(U.SRL1)[132]<-"DASS11"
+colnames(U.SRL1)[133]<-"DASS12"
+colnames(U.SRL1)[134]<-"DASS13"
+colnames(U.SRL1)[135]<-"DASS14"
+colnames(U.SRL1)[136]<-"DASS15"
+colnames(U.SRL1)[137]<-"DASS16"
+colnames(U.SRL1)[138]<-"DASS17"
+colnames(U.SRL1)[139]<-"DASS18"
+colnames(U.SRL1)[140]<-"DASS19"
+colnames(U.SRL1)[141]<-"DASS20"
+colnames(U.SRL1)[142]<-"DASS21"
+  #GAPM
+colnames(U.SRL1)[143]<-"GAPM1"
+colnames(U.SRL1)[144]<-"GAPM2"
+colnames(U.SRL1)[145]<-"GAPM3"
+colnames(U.SRL1)[146]<-"GAPM4"
+colnames(U.SRL1)[147]<-"GAPM5"
+colnames(U.SRL1)[148]<-"GAPM6"
+colnames(U.SRL1)[149]<-"GAPM7"
+colnames(U.SRL1)[150]<-"GAPM8"
+colnames(U.SRL1)[151]<-"GAPM9"
+colnames(U.SRL1)[152]<-"GAPM10"
+colnames(U.SRL1)[153]<-"GAPM11"
+colnames(U.SRL1)[154]<-"GAPM12"
+colnames(U.SRL1)[155]<-"GAPM13"
+colnames(U.SRL1)[156]<-"GAPM14"
+colnames(U.SRL1)[157]<-"GAPM15"
+colnames(U.SRL1)[158]<-"GAPM16"
+colnames(U.SRL1)[159]<-"GAPM17"
+colnames(U.SRL1)[160]<-"GAPM18"
+colnames(U.SRL1)[161]<-"GAPM19"
+colnames(U.SRL1)[162]<-"GAPM20"
+colnames(U.SRL1)[163]<-"GAPM21"
+colnames(U.SRL1)[164]<-"GAPM22"
+colnames(U.SRL1)[165]<-"GAPM23"
+colnames(U.SRL1)[166]<-"GAPM24"
+colnames(U.SRL1)[167]<-"GAPM25"
+colnames(U.SRL1)[168]<-"GAPM26"
+colnames(U.SRL1)[169]<-"GAPM27"
+colnames(U.SRL1)[170]<-"GAPM28"
+colnames(U.SRL1)[171]<-"GAPM29"
+colnames(U.SRL1)[172]<-"GAPM30"
+colnames(U.SRL1)[173]<-"GAPM31"
+colnames(U.SRL1)[174]<-"GAPM32"
+colnames(U.SRL1)[175]<-"GAPM33"
+colnames(U.SRL1)[176]<-"GAPM34"
+colnames(U.SRL1)[177]<-"GAPM35"
+colnames(U.SRL1)[178]<-"GAPM36"
+colnames(U.SRL1)[179]<-"GAPM37"
+colnames(U.SRL1)[180]<-"GAPM38"
+colnames(U.SRL1)[181]<-"GAPM39"
+colnames(U.SRL1)[182]<-"GAPM40"
+colnames(U.SRL1)[183]<-"GAPM41"
+colnames(U.SRL1)[184]<-"GAPM42"
+colnames(U.SRL1)[185]<-"GAPM43"
+colnames(U.SRL1)[186]<-"GAPM44"
+colnames(U.SRL1)[187]<-"GAPM45"
+colnames(U.SRL1)[188]<-"GAPM46"
+colnames(U.SRL1)[189]<-"GAPM47"
+colnames(U.SRL1)[190]<-"GAPM48"
+colnames(U.SRL1)[191]<-"GAPM49"
+
+colnames(U.SRL1)[192]<-"GAPMp1"
+colnames(U.SRL1)[193]<-"GAPMp2"
+colnames(U.SRL1)[194]<-"GAPMp3"
+colnames(U.SRL1)[195]<-"GAPMp4"
+colnames(U.SRL1)[196]<-"GAPMp5"
+colnames(U.SRL1)[197]<-"GAPMp6"
+colnames(U.SRL1)[198]<-"GAPMp7"
+colnames(U.SRL1)[199]<-"GAPMp8"
+
+names(U.SRL1)
+```
+
+```{r tibble}
+#make a tibble: 
+U.SRL.tbl <- 
+  as_tibble(U.SRL1) %>% # use these columns
+  select(rere1:rere4)
+
+print(U.SRL.tbl)
+
+```
+
+
+```{r make SSQ data numeric}
+
+#SSQ tibble
+SRL.SSQ <- select(U.SRL1, rere1:rere4, hi1:hi6, retr1:retr3, elab1:elab9, spa1:spa3, onli1:onli6, cons1:cons2)
+
+str(SRL.SSQ)
+SRL.SSQ[SRL.SSQ=="1- almost never"]<- 1 
+SRL.SSQ[SRL.SSQ=="2- very infrequently"]<- 2 
+SRL.SSQ[SRL.SSQ=="3- somewhat infrequently"]<- 3 
+SRL.SSQ[SRL.SSQ=="4- somewhat frequently"]<- 4
+SRL.SSQ[SRL.SSQ=="5- very frequently"]<- 5 
+SRL.SSQ[SRL.SSQ=="6- almost always"]<- 6 
+
+SRL.SSQ[SRL.SSQ=="1 - strongly disagree"]<- 1
+SRL.SSQ[SRL.SSQ=="2 - disagree a little"]<- 2 
+SRL.SSQ[SRL.SSQ=="3 - neither agree or disagree"]<- 3
+SRL.SSQ[SRL.SSQ=="4 - agree a little"]<- 4 
+SRL.SSQ[SRL.SSQ=="5 - strongly agree"]<- 5
+
+#convert from chr --> num: 
+SRL.SSQ.num <- sapply(SRL.SSQ, as.numeric)
+
+#check: 
+print(SRL.SSQ.num)
+str(SRL.SSQ.num)
+
+
+
+```
+  #failed atttempt
+      #gsub("1- almost never", "1", U.SRL)
+      
+```{r make BF5 data numeric} 
+
+#BF5 tibble
+SRL.BF <- select(U.SRL1, BF1:BF44) 
+
+str(SRL.BF)
+SRL.BF[SRL.BF=="1 - Disagree strongly"]<- 1 
+SRL.BF[SRL.BF=="2 - Disagree a little"]<- 2 
+SRL.BF[SRL.BF=="3 - Neither agree or disagree"]<- 3
+SRL.BF[SRL.BF=="4 - Agree a little"]<- 4 
+SRL.BF[SRL.BF=="5 - Agree strongly"]<- 5 
+
+#convert from chr --> num: 
+SRL.BF.num <- sapply(SRL.BF, as.numeric)
+
+#check: 
+print(SRL.BF.num)
+str(SRL.BF.num)
+  
+```
+
+```{r make ACRES data numeric} 
+
+#ACRES tibble
+SRL.ACRES <- select(U.SRL1, ACRES1:ACRES12) 
+
+str(SRL.ACRES)
+SRL.ACRES[SRL.ACRES=="1 - Never"]<- 1 
+SRL.ACRES[SRL.ACRES=="2 - Rarely"]<- 2 
+SRL.ACRES[SRL.ACRES=="3 - Sometimes"]<- 3
+SRL.ACRES[SRL.ACRES=="4 - Often"]<- 4 
+SRL.ACRES[SRL.ACRES=="5 - Very Often"]<- 5 
+
+#convert from chr --> num: 
+SRL.ACRES.num <- sapply(SRL.ACRES, as.numeric)
+
+#check: 
+print(SRL.ACRES.num)
+str(SRL.ACRES.num)
+  
+```
+```{r make MAASLO data numeric} 
+
+#MAASLO tibble 
+SRL.MAASLO <- select(U.SRL1, MAASLO1:MAASLO12) 
+
+str(SRL.MAASLO) 
+#the strings have already been converted 
+SRL.MAASLO[SRL.MAASLO=="1- almost never"]<- 1 
+SRL.MAASLO[SRL.MAASLO=="2- very infrequently"]<- 2 
+SRL.MAASLO[SRL.MAASLO=="3- somewhat infrequently"]<- 3
+SRL.MAASLO[SRL.MAASLO=="4- somewhat frequently"]<- 4 
+SRL.MAASLO[SRL.MAASLO=="5- very frequently"]<- 5 
+SRL.MAASLO[SRL.MAASLO=="6- almost always"]<- 6 
+
+print(SRL.MAASLO)
+
+#convert from chr --> num: 
+SRL.MAASLO.num <- sapply(SRL.MAASLO, as.numeric)
+
+#check: 
+print(SRL.MAASLO.num)
+str(SRL.MAASLO.num)
+  
+```
+
+```{r make MW data numeric} 
+
+#DMW tibble 
+SRL.MW <- select(U.SRL1, DMW1:DMW4, SMW1:SMW4) 
+
+str(SRL.MW) 
+    # 2-6 already in form 
+SRL.MW[SRL.MW=="1 - Rarely"]<- 1 
+SRL.MW[SRL.MW=="7 - A lot"]<- 7 
+
+#convert from chr --> num: 
+SRL.MW.num <- sapply(SRL.MW, as.numeric)
+
+#check: 
+print(SRL.MW.num)
+str(SRL.MW.num)
+  
+```
+
+```{r make DASS data numeric} 
+
+#DASS tibble 
+SRL.DASS <- select(U.SRL1, DASS1:DASS21) 
+
+str(SRL.DASS) 
+SRL.DASS[SRL.DASS=="0 - Did not apply to me"]<- 0 
+SRL.DASS[SRL.DASS=="1 - Applied to me to some degree of the time"]<- 1 
+SRL.DASS[SRL.DASS=="2 - Applied to me a considerable degree or a good part of the time"]<- 2 
+SRL.DASS[SRL.DASS=="3 - Applied to me very much or most of the time"]<- 3
+
+#convert from chr --> num: 
+SRL.DASS.num <- sapply(SRL.DASS, as.numeric)
+
+#check: 
+print(SRL.DASS.num)
+str(SRL.DASS.num)
+  
+```
+
+```{r make GAPM data numeric}
+#GAPM tibble 
+SRL.GAPM <- select(U.SRL1, GAPM1:GAPM49) 
+
+print(SRL.GAPM)
+SRL.GAPM[SRL.GAPM=="1 - strongly disagree"]<- 1
+SRL.GAPM[SRL.GAPM=="2 - disagree a little"]<- 2 
+SRL.GAPM[SRL.GAPM=="3 - neither agree or disagree"]<- 3
+SRL.GAPM[SRL.GAPM=="4 - agree a little"]<- 4 
+SRL.GAPM[SRL.GAPM=="5 - strongly agree"]<- 5 ### ***why is this not converting???*** ###
+
+print(SRL.GAPM)
+SRL.GAPM.num <- sapply(SRL.GAPM, as.numeric)
+
+print(SRL.GAPM.num)
+str(SRL.GAPM.num)
+```
+
+```{r make GAPMp data numeric}
+#GAPMp tibble 
+SRL.GAPMp <- select(U.SRL1, GAPMp1:GAPMp8) 
+
+print(SRL.GAPMp)
+SRL.GAPMp[SRL.GAPMp=="1 - strongly disagree"]<- 1
+SRL.GAPMp[SRL.GAPMp=="2 - disagree a little"]<- 2 
+SRL.GAPMp[SRL.GAPMp=="3 - neither agree or disagree"]<- 3
+SRL.GAPMp[SRL.GAPMp=="4 - agree a little"]<- 4 
+
+SRL.GAPMp[SRL.GAPMp=="5 - strongly agree"]<- 5 ### ***why is this not converting???*** ###
+
+print(SRL.GAPMp)
+SRL.GAPMp.num <- sapply(SRL.GAPMp, as.numeric)
+
+print(SRL.GAPMp.num)
+str(SRL.GAPMp.num)
+```
+
+```{r combine into 1 tibble}
+
+my.SRL <- data.frame(SRL.SSQ.num, SRL.BF.num, SRL.ACRES.num, SRL.MAASLO.num, SRL.MW.num, SRL.DASS.num, SRL.GAPM.num, SRL.GAPMp.num) 
+
+print(my.SRL)
+str(my.SRL)
+```
+
+```{r calculate means} 
+# Now lets calculate the means for each scale
+my.SRL.means <-    # the DASS and PANAS should be sums instead
+  tbl_df(my.SRL) %>% #select the corresponding columns and calculate the mean for each row 
+  mutate(rere = rowMeans(my.SRL[1:4], na.rm = TRUE), 
+         BF = rowMeans(my.SRL[34:77], na.rm = TRUE),
+         ACRES = rowSums(my.SRL[78:89], na.rm = TRUE),
+         MAASLO = rowMeans(my.SRL[90:101], na.rm = TRUE)
+         DMW = rowSums(my.SRL[101:104], na.rm = TRUE),
+         SMW = rowSums(my.SRL[105:108], na.rm = TRUE)) %>%
+   #Re-order the dataframe to see the means of each measure first 
+  select(gender, SUQ_G:DECE, DEC_E_1:PANAS_time_4)
+  
+
+
+
+print(my.SRL[78:89])
+
+
+
+```
+
+
+
+## Psychometrics 
+
+```{r calculate basic psychometric data} 
+
+
+
+
+
+```
+
+
+
+```{r  psychometric TABLE}
+
+
+
+
+
+
+```
+
+
+```{r alphas (BF5 recoding)}
+# alpha for SUQ_G
+SUQ_G_reli <- 
+  mydata_num_S1 %>%  # use to take same rows and avoid confusion
+  select(SUQ_G1:SUQ_G10) %>%  # same rows as when creating spflow
+  psych::alpha()
+print(SUQ_G_reli$total)
+
+# alpha for SUQ_A
+SUQ_A_reli <- 
+  mydata_num_S1 %>%
+  select(SUQ_A1:SUQ_A10) %>%  
+  psych::alpha()
+print(SUQ_A_reli$total)
+
+# Depression
+DEP_reli <-
+  mydata_num_S1 %>%
+  select(DASS_1_35:DASS_1_5) %>%
+  psych::alpha()
+print(DEP_reli$total)
+
+# Anxiety
+ANX_reli <-
+  mydata_num_S1 %>%
+  select(DASS_1_32:DASS_1_2) %>%
+  psych::alpha()
+print(ANX_reli$total)
+
+# Stress
+STR_reli <-
+  mydata_num_S1 %>%
+  select(DASS_1_26:DASS_1_6) %>%
+  psych::alpha()
+print(STR_reli$total)
+
+# Negative Affect
+NEGA_reli <-
+  mydata_num_S1 %>%
+  select(PANAS_1_2:PANAS_1_20) %>%
+  psych::alpha()
+print(NEGA_reli$total)
+
+# Positive Affect
+POSA_reli <-
+  mydata_num_S1 %>%
+  select(PANAS_1_1:PANAS_1_19) %>%
+  psych::alpha()
+print(POSA_reli$total)
+
+# Internal Flow
+DECI_reli <-
+  mydata_num_S1%>%
+  select(DEC_I_1:DEC_I_8) %>%
+  psych::alpha()
+print(DECI_reli$total)
+
+# External Flow
+DECE_reli <-
+  mydata_num_S1 %>%
+  select(DEC_E_1:DEC_E_8) %>%
+  psych::alpha()
+print(DECE_reli$total)
+```
+
+
+##Distributions
+
+
+##Correlations 
+
+
+##Regressions 
+
+
+##Partial Correlations 
+
+
+
+
